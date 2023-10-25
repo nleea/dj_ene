@@ -7,7 +7,7 @@ from django.utils import timezone
 @receiver(post_save, sender=WorkOrder)
 def active_status(sender, **kwargs):
     instance = kwargs["instance"]
-    customer = Customer.objects.get(pk=instance.customer_id.pk)
+    customer = Customer.objects.get(pk=instance.customer.pk)
 
     if instance.status == "NEW":
         customer.start_date = timezone.now()

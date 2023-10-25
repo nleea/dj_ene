@@ -21,7 +21,6 @@ services:
       - db
       - cache
     container_name: enerbit
-    restart: always
     ports:
       - "8000:8000"
     build:

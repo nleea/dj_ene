@@ -66,7 +66,7 @@ class WorkOrderSerializerList(serializers.Serializer):
     planned_date_begin = serializers.DateTimeField(read_only=True)
     planned_date_end = serializers.DateTimeField(read_only=True)
     status_display = serializers.SerializerMethodField()
-    customer = CustomerSerializerList(read_only=True)
+    customer = CustomerSerializerList(read_only=True, context={"orders": True})
 
     class Meta:
         fields = (

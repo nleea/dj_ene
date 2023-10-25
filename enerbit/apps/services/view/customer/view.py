@@ -3,6 +3,7 @@ from rest_framework.generics import (
     ListAPIView,
     UpdateAPIView,
     DestroyAPIView,
+    RetrieveAPIView,
 )
 from rest_framework.response import Response
 from rest_framework import status
@@ -51,6 +52,19 @@ class CreateCustomer(CreateAPIView):
             )
 
 
+class RetrieveCustomer(RetrieveAPIView):
+    serializer_class = CustomerSerializerList
+
+    def get_queryset(self):
+        pk = self.kwargs.get("pk", None)
+        return Customer.objects_filters.filterById(pk)
+
+    def get(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+        serializers = self.serializer_class(queryset, many=True)
+        return Response(serializers.data, status=status.HTTP_200_OK)
+
+
 class ListCustomer(ListAPIView):
     queryset = Customer.objects.all()
     serializer_class = CustomerSerializerList
@@ -64,10 +78,10 @@ class ListCustomer(ListAPIView):
         return super().get_queryset()
 
 
-class UpdateAndDeleteCustomer(UpdateAPIView, DestroyAPIView):
+class UpdateCustomer(UpdateAPIView):
     serializer_class = CustomerSerializerUpdate
 
-    def get_object(self) -> Customer | None:
+    def get_queryset(self):
         try:
             pk = self.kwargs.get("pk")
             if pk:
@@ -77,7 +91,7 @@ class UpdateAndDeleteCustomer(UpdateAPIView, DestroyAPIView):
             return None
 
     def update(self, request, *args, **kwargs):
-        instance = self.get_object()
+        instance = self.get_queryset()
 
         if not instance:
             return Response(
@@ -118,6 +132,17 @@ class UpdateAndDeleteCustomer(UpdateAPIView, DestroyAPIView):
                 },
                 status=status.HTTP_400_BAD_REQUEST,
             )
+
+
+class DeleteCustomer(DestroyAPIView):
+    def get_queryset(self):
+        try:
+            pk = self.kwargs.get("pk")
+            if pk:
+                return Customer.objects.get(pk=pk)
+            return None
+        except Customer.DoesNotExist:
+            return None
 
     def delete(self, request, *args, **kwargs):
         instance = self.get_object()

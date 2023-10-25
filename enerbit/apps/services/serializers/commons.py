@@ -1,0 +1,3 @@
+from .servicies.serializers_services import WorkOrderSerializerList,WorkOrderSerializer,WorkOrderSerializerUpdate
+from .customers.serializers_customers import CustomerSerializerList,CustomerSerializerUpdate,CustomerSerializer
+from ..models.models import *

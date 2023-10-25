@@ -59,12 +59,12 @@ class CreateWorkOrders(MemberMixin, CreateAPIView):
 class RetrieveWorkOrder(MemberMixin, ListAPIView):
     serializer_class = WorkOrderSerializerList
 
+    def get_queryset(self):
+        pk = self.kwargs.get("pk", None)
+        return WorkOrder.objects.filter(pk=pk).select_related("customer")
+
     def get(self, request, *args, **kwargs):
-        pk = kwargs.get("pk",None)
-
-        queryset = WorkOrder.objects.filter(pk=pk).select_related("customer")
-
-        serializer = self.serializer_class(queryset, many=True)
+        serializer = self.serializer_class(self.get_queryset(), many=True)
 
         self.data = serializer.data
         self.meta_data = "GET"
@@ -91,12 +91,12 @@ class ListWorkOrdersFilter(MemberMixin, ListAPIView):
 
         if since and until:
             if self.validate_date(since, until):
-                return WorkOrder.objects_filters.filterByDate(since, until)
+                return WorkOrder.objects_filters.filterByDate(since, until).order_by("-id")
             return None
         elif status:
-            return WorkOrder.objects_filters.filterByState(status)
+            return WorkOrder.objects_filters.filterByState(status).order_by("-id")
 
-        return WorkOrder.objects.all().select_related("customer")
+        return WorkOrder.objects.all().select_related("customer").order_by("-id")
 
     def get(self, request, *args, **kwargs):
         serializer = self.serializer_class(self.get_queryset(), many=True)
@@ -108,10 +108,10 @@ class ListWorkOrdersFilter(MemberMixin, ListAPIView):
         return Response(self.response_obj, status=status.HTTP_200_OK)
 
 
-class UpdateAndDeleteWorkOrder(MemberMixin, UpdateAPIView, DestroyAPIView):
+class UpdateWorkOrder(MemberMixin, UpdateAPIView):
     serializer_class = WorkOrderSerializerUpdate
 
-    def get_object(self) -> WorkOrder | None:
+    def get_queryset(self):
         try:
             pk = self.kwargs.get("pk")
             if pk:
@@ -121,7 +121,7 @@ class UpdateAndDeleteWorkOrder(MemberMixin, UpdateAPIView, DestroyAPIView):
             return None
 
     def update(self, request, *args, **kwargs):
-        instance = self.get_object()
+        instance = self.get_queryset()
 
         self.meta_data = "PUT"
         if not instance:
@@ -173,6 +173,17 @@ class UpdateAndDeleteWorkOrder(MemberMixin, UpdateAPIView, DestroyAPIView):
                 self.response_obj,
                 status=status.HTTP_400_BAD_REQUEST,
             )
+
+
+class DeleteWorkOrder(DestroyAPIView):
+    def get_queryset(self):
+        try:
+            pk = self.kwargs.get("pk")
+            if pk:
+                return WorkOrder.objects.get(pk=pk)
+            return None
+        except WorkOrder.DoesNotExist:
+            return None
 
     def delete(self, request, *args, **kwargs):
         instance = self.get_object()

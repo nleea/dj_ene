@@ -2,6 +2,17 @@ from rest_framework import serializers
 from ...models import Customer
 
 
+class WorkOrderSerializer(serializers.Serializer):
+    id = serializers.PrimaryKeyRelatedField(read_only=True)
+    title = serializers.CharField(read_only=True)
+    planned_date_begin = serializers.DateTimeField(read_only=True)
+    planned_date_end = serializers.DateTimeField(read_only=True)
+    status = serializers.CharField(read_only=True)
+    
+    class Meta:
+        ref_name = "workerOrderList"
+
+
 class CustomerSerializerList(serializers.Serializer):
     id = serializers.PrimaryKeyRelatedField(read_only=True)
     first_name = serializers.CharField(read_only=True)
@@ -10,15 +21,27 @@ class CustomerSerializerList(serializers.Serializer):
     end_date = serializers.DateTimeField(read_only=True)
     is_active = serializers.BooleanField(read_only=True)
     start_date = serializers.DateTimeField(read_only=True)
+    workorder_set = WorkOrderSerializer(read_only=True, many=True)
+
+    def __init__(self, instance=None, data=..., **kwargs):
+        context = kwargs.get("context", None)
+        super().__init__(instance, data, **kwargs)
+
+        order = context.get("orders",None)
+        
+        if order:
+            self.fields.pop("workorder_set")
+
+    def to_representation(self, instance):
+        results = super().to_representation(instance)
+        
+        if "workorder_set" in results:
+            results["workorder"] = [x for x in results["workorder_set"]]
+            del results["workorder_set"]
+        return results
 
     class Meta:
-        fields = (
-            "id",
-            "first_name",
-            "last_name",
-            "address",
-            "start_date"
-        )
+        fields = ("id", "first_name", "last_name", "address", "start_date")
 
 
 class CustomerSerializer(serializers.Serializer):
@@ -65,6 +88,13 @@ class CustomerSerializer(serializers.Serializer):
             last_name=validated_data["last_name"],
             address=validated_data["address"],
         )
+
+    def update(self, instance, validated_data):
+        instance.first_name = validated_data.get("first_name", instance.first_name)
+        instance.last_name = validated_data.get("last_name", instance.last_name)
+        instance.address = validated_data.get("address", instance.address)
+        instance.save()
+        return instance
 
 
 class CustomerSerializerUpdate(serializers.Serializer):

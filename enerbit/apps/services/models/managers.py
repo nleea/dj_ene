@@ -6,7 +6,7 @@ class CustomerFilters(Manager):
         return self.filter(is_active=True)
 
     def filterById(self, id):
-        return self.filter(pk=id)
+        return self.filter(pk=id).prefetch_related("workorder_set")
 
 
 class WorkerOrdersFilters(Manager):
