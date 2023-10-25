@@ -56,6 +56,11 @@ class WorkOrder(models.Model):
         DONE = "DONE", _("Done")
         CANCELLED = "CANCELLED", _("Cancelled")
 
+    class TypeOrder(models.TextChoices):
+        MANTENIMIENTO = "MANTENIMIENTO", _("Mantenimiento")
+        PLANEACION = "PLANEACION", _("Planeacion")
+        LIMPIEZA = "LIMPIEZA", _("Limpieza")
+
     customer = models.ForeignKey(Customer, on_delete=models.CASCADE)
     title = models.CharField(max_length=255, null=False)
     planned_date_begin = models.DateTimeField(null=False)
@@ -65,6 +70,9 @@ class WorkOrder(models.Model):
         default=StatusChoises.NEW,
         max_length=255,
         null=False,
+    )
+    type_order = models.CharField(
+        choices=TypeOrder.choices, default=TypeOrder.PLANEACION
     )
     created_at = models.DateTimeField(auto_now_add=True)
 

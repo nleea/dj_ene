@@ -28,7 +28,7 @@ services:
       - "./enerbit:/app/enerbit"
       - "./requirements.txt:/app/requirements.txt"
     environment:
-      DEBUG: true
+      DEBUG: false
       DB_HOST: db
       DB_PORT: 5432
       DB_USER: enerbit

@@ -20,6 +20,7 @@ class WorkOrderSerializer(serializers.Serializer):
     title = serializers.CharField(write_only=True)
     planned_date_begin = serializers.DateTimeField(write_only=True)
     planned_date_end = serializers.DateTimeField(write_only=True)
+    type_order = serializers.CharField(write_only=True)
 
     class Meta:
         fields = (
@@ -27,6 +28,7 @@ class WorkOrderSerializer(serializers.Serializer):
             "title",
             "planned_date_begin",
             "planned_date_end",
+            "type_order",
         )
 
     def validate(self, data):
@@ -68,6 +70,7 @@ class WorkOrderSerializerList(serializers.Serializer):
     planned_date_end = serializers.DateTimeField(read_only=True)
     status_display = serializers.SerializerMethodField()
     customer = CustomerSerializerList(read_only=True, context={"orders": True})
+    type_order = serializers.CharField(read_only=True)
 
     def __init__(self, instance=None, data=..., **kwargs):
         context = kwargs.get("context", {})
@@ -86,6 +89,7 @@ class WorkOrderSerializerList(serializers.Serializer):
             "planned_date_end",
             "status_display",
             "customer",
+            "type_order",
         )
 
     def get_status_display(self, obj) -> str:
@@ -110,13 +114,10 @@ class WorkOrderSerializerUpdate(serializers.Serializer):
     planned_date_begin = serializers.DateTimeField(required=False)
     planned_date_end = serializers.DateTimeField(required=False)
     status = serializers.ChoiceField(choices=STATUS_CHOISES, required=False)
+    type_order = serializers.CharField(required=False)
 
     class Meta:
-        fields = (
-            "title",
-            "planned_date_begin",
-            "planned_date_end",
-        )
+        fields = ("title", "planned_date_begin", "planned_date_end", "type_order")
 
     def validate_status(self, value):
         choises = [x[0] for x in STATUS_CHOISES]
