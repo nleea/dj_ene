@@ -91,6 +91,20 @@ SWAGGER_SETTINGS = {
     "DEFAULT_INFO": "config.urls.api_info",
 }
 
+REDIS_PASSWORD: str = env("REDIS_PASSWORD")
+REDIS_PORT = env("REDIS_PORT")
+REDIS_HOST = env("REDIS_HOST")
+
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": f"redis://{REDIS_PASSWORD}@{REDIS_HOST}:{REDIS_PORT}/1",
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+        },
+    }
+}
+
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
 
@@ -115,7 +129,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = "en-us"
 
-TIME_ZONE = "UTC"
+TIME_ZONE = "America/Bogota"
 
 USE_I18N = True
 

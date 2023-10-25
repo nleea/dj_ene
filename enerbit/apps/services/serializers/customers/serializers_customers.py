@@ -8,7 +8,7 @@ class WorkOrderSerializer(serializers.Serializer):
     planned_date_begin = serializers.DateTimeField(read_only=True)
     planned_date_end = serializers.DateTimeField(read_only=True)
     status = serializers.CharField(read_only=True)
-    
+
     class Meta:
         ref_name = "workerOrderList"
 
@@ -24,17 +24,17 @@ class CustomerSerializerList(serializers.Serializer):
     workorder_set = WorkOrderSerializer(read_only=True, many=True)
 
     def __init__(self, instance=None, data=..., **kwargs):
-        context = kwargs.get("context", None)
+        context = kwargs.get("context", {})
         super().__init__(instance, data, **kwargs)
 
-        order = context.get("orders",None)
-        
+        order = context.get("orders", False)
+
         if order:
             self.fields.pop("workorder_set")
 
     def to_representation(self, instance):
         results = super().to_representation(instance)
-        
+
         if "workorder_set" in results:
             results["workorder"] = [x for x in results["workorder_set"]]
             del results["workorder_set"]

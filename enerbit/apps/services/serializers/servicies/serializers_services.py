@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from rest_framework.fields import empty
 from ...models import WorkOrder
 from django.core.exceptions import ValidationError
 from ..customers.serializers_customers import CustomerSerializerList
@@ -48,7 +49,7 @@ class WorkOrderSerializer(serializers.Serializer):
 
     def validate_title(self, value):
         if not value:
-            raise serializers.ValidationError("El título no puede estar vacío.")
+            raise serializers.ValidationError("the title can't be empty")
         return value
 
     def create(self, validated_data):
@@ -67,6 +68,15 @@ class WorkOrderSerializerList(serializers.Serializer):
     planned_date_end = serializers.DateTimeField(read_only=True)
     status_display = serializers.SerializerMethodField()
     customer = CustomerSerializerList(read_only=True, context={"orders": True})
+
+    def __init__(self, instance=None, data=..., **kwargs):
+        context = kwargs.get("context", {})
+        super().__init__(instance, data, **kwargs)
+
+        order = context.get("customer", False)
+
+        if order:
+            self.fields.pop("customer")
 
     class Meta:
         fields = (
@@ -107,6 +117,15 @@ class WorkOrderSerializerUpdate(serializers.Serializer):
             "planned_date_begin",
             "planned_date_end",
         )
+
+    def validate_status(self, value):
+        choises = [x[0] for x in STATUS_CHOISES]
+
+        if value not in choises:
+            raise serializers.ValidationError(
+                f"Status no coincide, los posibles son: {choises}"
+            )
+        return value
 
     def update(self, instance, validated_data):
         instance.title = validated_data.get("title", instance.title)

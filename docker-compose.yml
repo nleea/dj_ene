@@ -11,8 +11,6 @@ services:
   cache:
     image: redis:6.2-alpine
     restart: always
-    ports:
-      - "6380:6379"
     command: redis-server --save 20 1 --loglevel warning --requirepass eYVX7EwVmmxKPCDmwMtyKVge8oLd2t81
     volumes:
       - cache:/data
@@ -26,8 +24,6 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    expose:
-      - "8000:8000"
     volumes:
       - "./enerbit:/app/enerbit"
       - "./requirements.txt:/app/requirements.txt"
@@ -39,8 +35,9 @@ services:
       DB_PASSWORD: enerbit
       DB_NAME: enerbit
       REDIS_HOST: cache
-      REDIS_PORT: 6380
+      REDIS_PORT: 6379
       REDIS_PASSWORD: eYVX7EwVmmxKPCDmwMtyKVge8oLd2t81
+      REDIS_CHANEL: enerbit
     links:
       - db
       - cache

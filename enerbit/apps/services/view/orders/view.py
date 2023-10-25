@@ -99,7 +99,7 @@ class ListWorkOrdersFilter(MemberMixin, ListAPIView):
         return WorkOrder.objects.all().select_related("customer").order_by("-id")
 
     def get(self, request, *args, **kwargs):
-        serializer = self.serializer_class(self.get_queryset(), many=True)
+        serializer = self.serializer_class(self.get_queryset(), many=True, context={"customer": True})
 
         self.data = serializer.data
         self.meta_data = "GET"
