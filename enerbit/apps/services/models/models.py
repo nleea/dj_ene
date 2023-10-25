@@ -85,3 +85,6 @@ class WorkOrder(models.Model):
 
     def get_status(self) -> StatusChoises:
         return self.StatusChoises[self.status]
+
+    def get_type_order(self, value) -> TypeOrder:
+        return self.TypeOrder[value]
