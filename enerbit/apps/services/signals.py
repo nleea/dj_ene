@@ -20,4 +20,4 @@ def active_status(sender, **kwargs):
         else:
             customer.is_active = True
 
-    # customer.save()
+    customer.save()
