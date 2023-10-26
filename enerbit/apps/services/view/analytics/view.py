@@ -43,7 +43,7 @@ class Analytics(APIView):
         )
 
         ax.set_xlabel("Tipo de orden de trabajo")
-        ax.set_ylabel("Duración")
+        ax.set_ylabel("Duración (HORAS)")
         ax.legend(
             ["Completada", "Cancelada"],
             loc="upper right",
