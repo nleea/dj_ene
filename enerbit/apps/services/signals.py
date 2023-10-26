@@ -16,7 +16,11 @@ REDIS_CHANNEL = env("REDIS_CHANEL")
 
 def broker_message(work_order):
     r = redis.StrictRedis(
-        host=REDIS_HOST, port=REDIS_PORT, db=0, password=REDIS_PASSWORD, decode_responses=True
+        host=REDIS_HOST,
+        port=REDIS_PORT,
+        db=0,
+        password=REDIS_PASSWORD,
+        decode_responses=True,
     )
     r.xadd(name=REDIS_CHANNEL, id="*", fields=work_order)
 
@@ -26,23 +30,21 @@ def active_status(sender, **kwargs):
     instance = kwargs["instance"]
     customer = Customer.objects.get(pk=instance.customer.pk)
 
-    if instance.status == "NEW":
-        customer.start_date = timezone.now()
-
-    elif instance.status == "DONE":
+    if instance.status == "DONE":
         if customer.is_active:
             customer.end_date = timezone.now()
             customer.is_active = False
         else:
             customer.is_active = True
+            customer.start_date = timezone.now()
 
-    customer.save()
+        customer.save()
 
-    work_order = {
-        "status": instance.status,
-        "order": instance.pk,
-        "customer": instance.customer.pk,
-        "evenType": "change_status",
-    }
+        work_order = {
+            "status": instance.status,
+            "order": instance.pk,
+            "customer": instance.customer.pk,
+            "evenType": "change_status",
+        }
 
-    broker_message(work_order)
+        broker_message(work_order)

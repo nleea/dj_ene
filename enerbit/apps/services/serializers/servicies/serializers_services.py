@@ -5,6 +5,12 @@ from django.core.exceptions import ValidationError
 from ..customers.serializers_customers import CustomerSerializerList
 
 
+TYPE_ORDER = (
+    ("MANTENIMIENTO", "Mantenimiento"),
+    ("PLANEACION", "Planeacion"),
+    ("LIMPIEZA", "Limpieza"),
+)
+
 class WorkOrderSerializer(serializers.Serializer):
     """
     Serializador para el modelo `WorkOrder`.
@@ -20,7 +26,8 @@ class WorkOrderSerializer(serializers.Serializer):
     title = serializers.CharField(write_only=True)
     planned_date_begin = serializers.DateTimeField(write_only=True)
     planned_date_end = serializers.DateTimeField(write_only=True)
-    type_order = serializers.CharField(write_only=True)
+    type_order = serializers.ChoiceField(choices=TYPE_ORDER,required=False)
+
 
     class Meta:
         fields = (
@@ -60,6 +67,7 @@ class WorkOrderSerializer(serializers.Serializer):
             title=validated_data["title"],
             planned_date_begin=validated_data["planned_date_begin"],
             planned_date_end=validated_data["planned_date_end"],
+            type_order=validated_data["type_order"]
         )
 
 
@@ -99,6 +107,7 @@ class WorkOrderSerializerList(serializers.Serializer):
 STATUS_CHOISES = (("NEW", "New"), ("DONE", "Done"), ("CANCELLED", "Cancelled"))
 
 
+
 class WorkOrderSerializerUpdate(serializers.Serializer):
     """
     Serializador para el modelo `WorkOrder`.
@@ -114,7 +123,8 @@ class WorkOrderSerializerUpdate(serializers.Serializer):
     planned_date_begin = serializers.DateTimeField(required=False)
     planned_date_end = serializers.DateTimeField(required=False)
     status = serializers.ChoiceField(choices=STATUS_CHOISES, required=False)
-    type_order = serializers.CharField(required=False)
+    type_order = serializers.ChoiceField(choices=TYPE_ORDER,required=False)
+
 
     class Meta:
         fields = ("title", "planned_date_begin", "planned_date_end", "type_order")
@@ -137,6 +147,7 @@ class WorkOrderSerializerUpdate(serializers.Serializer):
             "planned_date_end", instance.planned_date_end
         )
         instance.status = validated_data.get("status", instance.status)
+        instance.type_order = validated_data.get("type_order", instance.type_order)
 
         difference = instance.planned_date_end - instance.planned_date_begin
 

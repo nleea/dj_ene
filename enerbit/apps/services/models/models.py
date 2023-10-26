@@ -25,7 +25,7 @@ class Customer(models.Model):
     address = models.CharField(max_length=255, null=False)
     start_date = models.DateTimeField(null=True)
     end_date = models.DateTimeField(null=True)
-    is_active = models.BooleanField(default=True)
+    is_active = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
 
     objects = models.Manager()
@@ -61,18 +61,18 @@ class WorkOrder(models.Model):
         PLANEACION = "PLANEACION", _("Planeacion")
         LIMPIEZA = "LIMPIEZA", _("Limpieza")
 
-    customer = models.ForeignKey(Customer, on_delete=models.CASCADE)
+    customer = models.ForeignKey(Customer, on_delete=models.PROTECT)
     title = models.CharField(max_length=255, null=False)
     planned_date_begin = models.DateTimeField(null=False)
     planned_date_end = models.DateTimeField(null=False)
     status = models.CharField(
         choices=StatusChoises.choices,
         default=StatusChoises.NEW,
-        max_length=255,
+        max_length=15,
         null=False,
     )
     type_order = models.CharField(
-        choices=TypeOrder.choices, default=TypeOrder.PLANEACION
+        max_length=15, choices=TypeOrder.choices, default=TypeOrder.PLANEACION
     )
     created_at = models.DateTimeField(auto_now_add=True)
 
